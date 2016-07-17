@@ -1,9 +1,16 @@
 package main
 
 import (
+	"encoding/json"
 	"net"
 	"net/http"
 )
+
+func health(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	c, _ := json.Marshal(map[string]bool{"status": true})
+	w.Write(c)
+}
 
 func hello(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
@@ -26,5 +33,6 @@ func hello(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", hello)
+	http.HandleFunc("/health", health)
 	http.ListenAndServe(":8000", nil)
 }
