@@ -1,6 +1,19 @@
 This service expose an http server on port 8000 and serve your current ip like output. It has also a healthcheck root `/health` to be sure that it's ready.
 
+```
+MYSQL_USERNAME=hello MYSQL_PASSWORD=******** MYSQL_ADDR=mysql.cc.net ./micro
+```
+
 This application has a proper repository in [hub.docker](https://hub.docker.com/r/gianarb/micro/) with few version of this service, feel free to use them.
+```
+docker run \
+  -e MYSQL_USERNAME=hello 
+  -e MYSQL_PASSWORD=******** \
+  -e MYSQL_ADDR=mysql.cc.net \
+  -p 8000:8000 \
+  --net your-net \
+  gianarb/micro:2.0.0
+```
 
 I create this application to have a good example around few topic:
 * HealthCheck
@@ -33,9 +46,14 @@ Request
 GET
 /
 ```
-Response
+Response: it return 200 if the health is good, in other case 500.
 ```
-<ip>
+{
+  "status": false,
+  "info": [
+    "database": "Tcp connection doesn't work"
+  ]
+}
 ```
 
 ## Docker
