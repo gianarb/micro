@@ -3,7 +3,6 @@ package handle
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -13,16 +12,11 @@ type healtResponse struct {
 	Info   map[string]string `json:"info"`
 }
 
-func Health(username string, password string, addr string) func(http.ResponseWriter, *http.Request) {
+func Health(db *sql.DB) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		res := healtResponse{Status: true}
 		httpStatus := 200
-		dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/micro", username, password, addr)
-		ddb, err := sql.Open("mysql", dsn)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if err := ddb.Ping(); err != nil {
+		if err := db.Ping(); err != nil {
 			res.Status = false
 			res.Info = map[string]string{"database": err.Error()}
 		}

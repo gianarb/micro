@@ -32,12 +32,12 @@ func main() {
 
 	log.Println("Initializing database connection")
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/micro", username, password, mySqlAddr)
-	_, err := sql.Open("mysql", dsn)
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	http.HandleFunc("/", handle.Hello)
-	http.HandleFunc("/health", handle.Health(username, password, mySqlAddr))
+	http.HandleFunc("/health", handle.Health(db))
 	http.ListenAndServe(":8000", nil)
 }
