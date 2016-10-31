@@ -1,29 +1,20 @@
 package handle
 
 import (
-	"fmt"
+	"html/template"
 	"log"
-	"net"
 	"net/http"
+	"time"
 )
 
-func Hello(w http.ResponseWriter, r *http.Request) {
-	log.Println("%s called /", r.Host)
-	w.Header().Set("Content-Type", "text/html")
-	ifaces, _ := net.Interfaces()
-	var ip net.IP
-	for _, i := range ifaces {
-		addrs, _ := i.Addrs()
-		for _, addr := range addrs {
-			switch v := addr.(type) {
-			case *net.IPNet:
-				ip = v.IP
-			case *net.IPAddr:
-				ip = v.IP
-			}
-		}
+func Hello(version string) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println("%s called /", r.Host)
+		w.Header().Add("Content-Type", "text/html")
+		t := template.Must(template.New("foo").Parse(`<h2>Hello, I am micro {{.Version}}</h2><ul><li><a href="/net">Network</a><li><a href="/fs">File Systems</a></li><li><a href="/dns">resolv.conf</a></li><li><a href="/env">Env Vars</a></li><li><a href="/health">health</a></li></ul><p>Date {{.Date}}</p>`))
+		t.Execute(w, map[string]string{
+			"Date":    time.Now().String(),
+			"Version": version,
+		})
 	}
-	b, _ := ip.MarshalText()
-	res := fmt.Sprintf("<div style='text-align:center;'><p style='font-size:5em'>%s</p><p style='font-size:3em'>v2.0</p></div>", b)
-	w.Write([]byte(res))
 }
